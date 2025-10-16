@@ -9,15 +9,21 @@ knitr::opts_chunk$set(fig.height=3, fig.width=4, warning=FALSE, tidy=TRUE, echo=
                       tidy.opts=list(width.cutoff=60))
 ```
 
+
 ```{r}
+#reads in the dataset
 PS = read.csv('Project1_school.csv')
 ```
 
+
 ```{r}
+#creates a new variable in the dataset
 PS$High_Math_GPA_State = (PS$Academic.Subjects.Mathematics.Average.GPA >= 3.5)
 ```
 
+
 ```{r message=FALSE}
+#creates a new dataset filtered to only include the State, Year, GPA, and SAT score
 library(tidyverse)
 HighGPA_States = filter(PS, High_Math_GPA_State == TRUE, Year >= 2010) |>
   select(State.Name, Year, Academic.Subjects.Mathematics.Average.GPA, Total.Math)
@@ -43,7 +49,9 @@ Below is an image of students taking the SAT:
 
 The outcome variable in this analysis is the **average Math SAT score**. A histogram of these scores across all states and years is displayed below:
 
+
 ```{r}
+#Shows the distribution of SAT scores from our new dataset
 library(ggplot2)
 ggplot(HighGPA_States) + geom_histogram (aes(x=Total.Math), binwidth=10, col="lightblue", fill='black') + labs(x='Average Math Score', title = 'Distribution of Average Math SAT Scores', y = 'Count') + theme_classic() 
 ```
@@ -56,7 +64,9 @@ The Math SAT scores range from a minimum of **`r round(min(HighGPA_States$Total.
 
 The first graph shows whether **Math SAT scores** changed over time for states with high **Math GPA**. 
 
+
 ```{r fig.height=5, fig.width=7}
+#Shows the differences in the SAT Math scores as the years go by
 ggplot(HighGPA_States) + geom_jitter(aes(x = Year, y = Total.Math), width = 0.3, alpha = 0.5, col="lightblue") + labs(title = "Average Math SAT Score over Time (Post 2010)", x = "Year", y = "Average Math Score") + theme_classic()
 ```
 
@@ -67,10 +77,15 @@ The correlation between year and average Math score is `r round(cor(HighGPA_Stat
 
 The second graph takes a look at how Math scores vary across high-GPA states.
 
+
 ```{r fig.height=7, fig.width=15}
+#This graph shows the distributon of SAT scores across all states present in the dataset
 ggplot(HighGPA_States) + geom_boxplot(aes(x = reorder(State.Name, Total.Math, FUN = median), y = Total.Math), col="lightblue", fill='black') + labs(title = "Distribution of Math Scores by State (High GPA States, Post 2010)", x = "State", y = "Average Math Score") + theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 14), axis.title = element_text(size=18), plot.title = element_text(size=18))
 ```
+
+
 ```{r}
+#Gives us the median Math SAT score for each state
 x = group_by(HighGPA_States, State.Name)
 summarize(x, median(Total.Math)) 
 ```
@@ -82,6 +97,7 @@ The graph reveals a significant variation in average math scores among these sta
 
 
 ```{r}
+#Gives us the mean, median, max and min of the Math SAT scores correlated to the states
 state_stats = HighGPA_States |>
 group_by(State.Name) |>
 summarise(mean = mean(Total.Math, na.rm = TRUE), median = median(Total.Math, na.rm = TRUE), min = min(Total.Math, na.rm = TRUE), max = max(Total.Math, na.rm = TRUE))
@@ -93,7 +109,9 @@ summarise(mean = mean(Total.Math, na.rm = TRUE), median = median(Total.Math, na.
 
 The third graph explores the relationship between Math GPA and SAT Math performance.
 
+
 ```{r fig.height=5, fig.width=7}
+#Shows us the relation between Math SAT Scores and Math GPA
 ggplot(HighGPA_States) + geom_point(aes(x = Academic.Subjects.Mathematics.Average.GPA, y = Total.Math), col="lightblue") +
 labs(title = "Math SAT Score vs. Average Math GPA (Post 2010)", x = "Average Math GPA", y = "Average Math Score") +
 theme_classic()
